@@ -6,6 +6,7 @@ import GUI from "lil-gui";
 interface GalaxyGenerator {
   numberOfParticles: number;
   size: number;
+  radius: number;
 }
 
 const gui = new GUI();
@@ -18,7 +19,11 @@ let material: THREE.PointsMaterial;
 let geometry: THREE.BufferGeometry;
 let points: THREE.Points;
 
-const galaxyGenerator = ({ numberOfParticles, size }: GalaxyGenerator) => {
+const galaxyGenerator = ({
+  numberOfParticles,
+  size,
+  radius,
+}: GalaxyGenerator) => {
   if (points) {
     material.dispose();
     geometry.dispose();
@@ -32,10 +37,11 @@ const galaxyGenerator = ({ numberOfParticles, size }: GalaxyGenerator) => {
     const x = i * numberOfDimensions;
     const y = x + 1;
     const z = x + 2;
+    const particleRadius = Math.random() * radius;
 
-    positions[x] = (Math.random() - 0.5) * 10;
-    positions[y] = (Math.random() - 0.5) * 10;
-    positions[z] = (Math.random() - 0.5) * 10;
+    positions[x] = particleRadius;
+    positions[y] = 0;
+    positions[z] = 0;
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -53,6 +59,7 @@ const galaxyGenerator = ({ numberOfParticles, size }: GalaxyGenerator) => {
 const galaxyParams: GalaxyGenerator = {
   numberOfParticles: 1000,
   size: 0.01,
+  radius: 5,
 };
 galaxyGenerator(galaxyParams);
 
@@ -67,6 +74,12 @@ gui
   .min(0.001)
   .max(0.1)
   .step(0.001)
+  .onFinishChange(() => galaxyGenerator(galaxyParams));
+gui
+  .add(galaxyParams, "radius")
+  .min(0.01)
+  .max(20)
+  .step(0.01)
   .onFinishChange(() => galaxyGenerator(galaxyParams));
 
 const sizes = {
