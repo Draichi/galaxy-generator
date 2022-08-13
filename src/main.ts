@@ -9,6 +9,8 @@ interface GalaxyGenerator {
   radius: number;
   branches: number;
   spin: number;
+  randomness: number;
+  randomnessPower: number;
 }
 
 const gui = new GUI();
@@ -27,6 +29,8 @@ const galaxyGenerator = ({
   radius,
   branches,
   spin,
+  randomness,
+  randomnessPower,
 }: GalaxyGenerator) => {
   if (points) {
     material.dispose();
@@ -45,9 +49,16 @@ const galaxyGenerator = ({
     const spinAngle = particleRadius * spin;
     const branchAngle = ((i % branches) / branches) * Math.PI * 2;
 
-    positions[x] = Math.cos(branchAngle + spinAngle) * particleRadius;
-    positions[y] = 0;
-    positions[z] = Math.sin(branchAngle + spinAngle) * particleRadius;
+    const randomX =
+      Math.pow(Math.random(), randomnessPower) * (Math.random() < 0.5 ? -1 : 1);
+    const randomY =
+      Math.pow(Math.random(), randomnessPower) * (Math.random() < 0.5 ? -1 : 1);
+    const randomZ =
+      Math.pow(Math.random(), randomnessPower) * (Math.random() < 0.5 ? -1 : 1);
+
+    positions[x] = Math.cos(branchAngle + spinAngle) * particleRadius + randomX;
+    positions[y] = randomY;
+    positions[z] = Math.sin(branchAngle + spinAngle) * particleRadius + randomZ;
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -68,6 +79,8 @@ const galaxyParams: GalaxyGenerator = {
   radius: 5,
   branches: 3,
   spin: 1,
+  randomness: 0.02,
+  randomnessPower: 3,
 };
 galaxyGenerator(galaxyParams);
 
@@ -99,6 +112,18 @@ gui
   .add(galaxyParams, "spin")
   .min(-5)
   .max(5)
+  .step(0.01)
+  .onFinishChange(() => galaxyGenerator(galaxyParams));
+gui
+  .add(galaxyParams, "randomness")
+  .min(0)
+  .max(2)
+  .step(0.01)
+  .onFinishChange(() => galaxyGenerator(galaxyParams));
+gui
+  .add(galaxyParams, "randomnessPower")
+  .min(1)
+  .max(10)
   .step(0.01)
   .onFinishChange(() => galaxyGenerator(galaxyParams));
 
