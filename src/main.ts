@@ -11,6 +11,8 @@ interface GalaxyGenerator {
   spin: number;
   randomness: number;
   randomnessPower: number;
+  insideColor: string;
+  outsideColor: string;
 }
 
 const gui = new GUI();
@@ -31,6 +33,8 @@ const galaxyGenerator = ({
   spin,
   randomness,
   randomnessPower,
+  insideColor,
+  outsideColor,
 }: GalaxyGenerator) => {
   if (points) {
     material.dispose();
@@ -38,8 +42,12 @@ const galaxyGenerator = ({
     scene.remove(points);
   }
   geometry = new THREE.BufferGeometry();
-  const numberOfDimensions = 3; // x, y, z
+  const numberOfDimensions = 3; // x, y, z and R, G, B
   const positions = new Float32Array(numberOfParticles * numberOfDimensions);
+  const colors = new Float32Array(numberOfParticles * numberOfDimensions);
+
+  const colorInside = new THREE.Color(insideColor);
+  const colorOutside = new THREE.Color(outsideColor);
 
   for (let i = 0; i < numberOfParticles; i++) {
     const x = i * numberOfDimensions;
@@ -59,15 +67,26 @@ const galaxyGenerator = ({
     positions[x] = Math.cos(branchAngle + spinAngle) * particleRadius + randomX;
     positions[y] = randomY;
     positions[z] = Math.sin(branchAngle + spinAngle) * particleRadius + randomZ;
+
+    const mixedColor = colorInside.clone();
+    mixedColor.lerp(colorOutside, particleRadius / radius);
+    const red = i * numberOfDimensions;
+    const green = red + 1;
+    const blue = red + 2;
+    colors[red] = mixedColor.r;
+    colors[green] = mixedColor.g;
+    colors[blue] = mixedColor.b;
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   material = new THREE.PointsMaterial({
     size,
     sizeAttenuation: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
+    vertexColors: true,
   });
 
   points = new THREE.Points(geometry, material);
@@ -81,6 +100,8 @@ const galaxyParams: GalaxyGenerator = {
   spin: 1,
   randomness: 0.02,
   randomnessPower: 3,
+  insideColor: "#ff6030",
+  outsideColor: "#1b3984",
 };
 galaxyGenerator(galaxyParams);
 
@@ -125,6 +146,12 @@ gui
   .min(1)
   .max(10)
   .step(0.01)
+  .onFinishChange(() => galaxyGenerator(galaxyParams));
+gui
+  .addColor(galaxyParams, "insideColor")
+  .onFinishChange(() => galaxyGenerator(galaxyParams));
+gui
+  .addColor(galaxyParams, "outsideColor")
   .onFinishChange(() => galaxyGenerator(galaxyParams));
 
 const sizes = {
