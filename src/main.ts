@@ -9,7 +9,6 @@ interface GalaxyGenerator {
   radius: number;
   branches: number;
   spin: number;
-  randomness: number;
   randomnessPower: number;
   insideColor: string;
   outsideColor: string;
@@ -31,7 +30,6 @@ const galaxyGenerator = ({
   radius,
   branches,
   spin,
-  randomness,
   randomnessPower,
   insideColor,
   outsideColor,
@@ -98,7 +96,6 @@ const galaxyParams: GalaxyGenerator = {
   radius: 5,
   branches: 3,
   spin: 1,
-  randomness: 0.02,
   randomnessPower: 3,
   insideColor: "#ff6030",
   outsideColor: "#1b3984",
@@ -133,12 +130,6 @@ gui
   .add(galaxyParams, "spin")
   .min(-5)
   .max(5)
-  .step(0.01)
-  .onFinishChange(() => galaxyGenerator(galaxyParams));
-gui
-  .add(galaxyParams, "randomness")
-  .min(0)
-  .max(2)
   .step(0.01)
   .onFinishChange(() => galaxyGenerator(galaxyParams));
 gui
